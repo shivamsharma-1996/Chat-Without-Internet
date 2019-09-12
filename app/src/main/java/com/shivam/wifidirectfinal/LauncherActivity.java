@@ -2,6 +2,7 @@ package com.shivam.wifidirectfinal;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -10,7 +11,6 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -19,6 +19,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
     public TextView tvGroupStatus;
     public Button btnWifiOnOff;
     public Button btnFindGroups, btnFormGroup, btnRemoveGroup;
+    public ImageView ivNextPage;
 
     //peers listview
     RecyclerView peerRec;
@@ -58,7 +60,7 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_launcher);
 
         init();
         setOnclickHandler();
@@ -75,6 +77,7 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
         btnFormGroup = findViewById(R.id.btn_form_group);
         tvGroupStatus = findViewById(R.id.tv_group_status);
         btnRemoveGroup = findViewById(R.id.btn_remove_group);
+        ivNextPage = findViewById(R.id.iv_next_page);
 
         //Wifi
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -154,6 +157,7 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
         btnFormGroup.setOnClickListener(this);
         btnFindGroups.setOnClickListener(this);
         btnRemoveGroup.setOnClickListener(this);
+        ivNextPage.setOnClickListener(this);
     }
 
     private void switchWifi() {
@@ -203,6 +207,9 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btn_remove_group:
                 removeGroupIfFormed();
+                break;
+            case R.id.iv_next_page:
+                goToChatPage();
                 break;
         }
     }
@@ -303,5 +310,10 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
         btnFindGroups.setText("Find Groups");
         btnFindGroups.setEnabled(true);
         btnFindGroups.setAlpha(1f);
+    }
+
+    private void goToChatPage() {
+        Intent chatIntent = new Intent(this, ChatActivity.class);
+        startActivity(chatIntent);
     }
 }
