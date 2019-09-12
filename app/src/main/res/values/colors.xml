@@ -7,4 +7,5 @@
 
     <color name="button_background">#535391</color>
     <color name="button_text">#FFFFFF</color>
+    <color name="button_red_background">#D50000</color>
 </resources>
