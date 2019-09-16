@@ -1,4 +1,4 @@
-package com.shivam.wifidirectfinal;
+package com.shivam.wifidirectfinal.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -23,8 +25,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.shivam.wifidirectfinal.R;
 import com.shivam.wifidirectfinal.adapter.PeerAdapter;
+import com.shivam.wifidirectfinal.initThreads.ClientInit;
+import com.shivam.wifidirectfinal.initThreads.ServerInit;
 import com.shivam.wifidirectfinal.receiver.WifiDirectBroadcastReceiver;
+import com.shivam.wifidirectfinal.service.MessageService;
+import com.shivam.wifidirectfinal.utils.PeerSingleton;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -33,7 +40,7 @@ import java.util.List;
 public class LauncherActivity extends AppCompatActivity implements View.OnClickListener {
 
     //Views
-    public TextView tvConnectionStatus;
+    public  static TextView tvConnectionStatus;
     public TextView tvGroupStatus;
     public Button btnWifiOnOff;
     public Button btnFindGroups, btnFormGroup, btnRemoveGroup;
@@ -57,6 +64,19 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
     BroadcastReceiver mReceiver;
     IntentFilter mIntentFilter;
 
+    public static ServerInit serverInit;
+    public static ClientInit clientInit;
+
+    public static void updateClientsConnected(final int size) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                LauncherActivity.tvConnectionStatus.setText("No. of clients connected : " + size);
+                LauncherActivity.tvConnectionStatus.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,8 +85,6 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
         init();
         setOnclickHandler();
         setConnectionState();
-        Log.d("Patch", String.valueOf(wifiManager.getConfiguredNetworks()));
-
     }
 
     private void init() {
@@ -78,6 +96,7 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
         tvGroupStatus = findViewById(R.id.tv_group_status);
         btnRemoveGroup = findViewById(R.id.btn_remove_group);
         ivNextPage = findViewById(R.id.iv_next_page);
+
 
         //Wifi
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -126,23 +145,46 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
         connectionInfoListener = new WifiP2pManager.ConnectionInfoListener() {
             @Override
             public void onConnectionInfoAvailable(WifiP2pInfo info) {
+
+                Log.d("Patch info1", String.valueOf(info) + "shivam");
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+                StrictMode.setThreadPolicy(policy);
+                Log.d("Patch info2", info.groupOwnerAddress.toString() + " shivam");
+
                 final InetAddress groupOwnerAddress = info.groupOwnerAddress;
+                PeerSingleton.getInstance().setOwnerAddress(groupOwnerAddress);
+
+                PeerSingleton.getInstance().setGroupFormed(true);
 
                 if (info.groupFormed && info.isGroupOwner) {
                     tvGroupStatus.setText("Group Status : Owner");
-//                    serverClass = new ServerClass();
-//                    serverClass.start();
+
+                    PeerSingleton.getInstance().setOwnner(true);
+
+                    serverInit = new ServerInit();
+                    serverInit.start();
+//                    if(serverInit == null){
+//                        serverInit = new ServerInit();
+//                        serverInit.start();
+//                    }
+
                 } else if (info.groupFormed) {
                     tvGroupStatus.setText("Group Status : Client");
-//                    clientClass = new ClientClass(groupOwnerAddress);
-//                    clientClass.start();
+
+                    PeerSingleton.getInstance().setOwnner(false);
+                    clientInit = new ClientInit(PeerSingleton.getInstance().getOwnerAddress());
+                    clientInit.start();
+//                    if(clientInit == null){
+//                        clientInit = new ClientInit(PeerSingleton.getInstance().getOwnerAddress());
+//                        clientInit.start();
+//                    }
                 }else {
                     //group not formed
                     tvGroupStatus.setText("Group Status : None");
                 }
             }
         };
-
 
         //Peer list
         peerRec = findViewById(R.id.peer_list);
@@ -219,9 +261,27 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onSuccess() {
                 Toast.makeText(LauncherActivity.this, "Group is removed", Toast.LENGTH_SHORT).show();
-                tvGroupStatus.setText("Group Status : None");
-                peers.clear();
-                peerAdapter.notifyDataSetChanged();
+                tvGroupStatus.setText("Group Status : Destroyed");
+                LauncherActivity.tvConnectionStatus.setText("");
+                LauncherActivity.tvConnectionStatus.setVisibility(View.GONE);
+                PeerSingleton.getInstance().setGroupFormed(false);
+
+                Boolean isOwner = PeerSingleton.getInstance().isOwnner();
+                if(isOwner != null && isOwner == true){
+                    //destroyed serverInit, if alive
+                    if(serverInit != null && serverInit.isAlive()){
+                        serverInit.interrupt();
+                        serverInit = null;
+                        Toast.makeText(LauncherActivity.this, "serverInit is destroyed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else if(isOwner != null && isOwner == false){
+                    if(clientInit != null && clientInit.isAlive()){
+                        clientInit.interrupt();
+                        clientInit = null;
+                        Toast.makeText(LauncherActivity.this, "clientInit is destroyed", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
 
             @Override
@@ -313,6 +373,37 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void goToChatPage() {
+        //Start the init process
+        if(PeerSingleton.getInstance().isOwnner() != null
+                && PeerSingleton.getInstance().isOwnner()){
+
+            if(PeerSingleton.getInstance().getGroupFormed()){
+                Toast.makeText(this, "I'm the group owner  " + PeerSingleton.getInstance().getOwnerAddress().getHostAddress(), Toast.LENGTH_LONG).show();
+            }
+//            serverInit = new ServerInit();
+//            serverInit.start();
+            /*ServerInit server = new ServerInit();
+            server.start();*/
+
+            if(serverInit == null){
+                ServerInit server = new ServerInit();
+                server.start();
+            }
+        }
+        else{
+            if(PeerSingleton.getInstance().getGroupFormed()){
+                Toast.makeText(this, "I'm the client", Toast.LENGTH_LONG).show();
+            }
+//            ClientInit client = new ClientInit(PeerSingleton.getInstance().getOwnerAddress());
+//            client.start();
+
+            if(clientInit == null){
+                clientInit = new ClientInit(PeerSingleton.getInstance().getOwnerAddress());
+                clientInit.start();
+            }
+        }
+
+        //Change page
         Intent chatIntent = new Intent(this, ChatActivity.class);
         startActivity(chatIntent);
     }

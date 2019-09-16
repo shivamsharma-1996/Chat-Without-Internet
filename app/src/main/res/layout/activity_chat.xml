@@ -1,60 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatActivity">
+    tools:context=".activity.ChatActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_chat_screen"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        app:title="P2P Chat"
-        android:background="@color/button_background"
-        app:titleTextColor="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:focusedByDefault="false"
+        android:focusableInTouchMode="true">
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#F3ECEC"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/ll_chat_input"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"/>
-
-    <LinearLayout
-        android:id="@+id/ll_chat_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="10"
-        android:background="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <EditText
-            android:id="@+id/chat_message_view"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="8"
-            android:backgroundTint="@android:color/white"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="16dp"
-            android:hint="Enter Text Here"/>
-
-        <Button
-            android:id="@+id/chat_send_btn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:text="Send"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
             android:background="@color/button_background"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@android:color/white"
-            android:foreground="@android:drawable/list_selector_background"/>
-    </LinearLayout>
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="P2P Chat"
+            app:titleTextColor="@android:color/white" />
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/chat_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#cccccc"
+            app:layout_constraintBottom_toTopOf="@+id/ll_chat_input"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+        <LinearLayout
+            android:id="@+id/ll_chat_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="horizontal"
+            android:weightSum="10"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <EditText
+                android:id="@+id/et_input_msg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="8"
+                android:backgroundTint="@android:color/white"
+                android:hint="Enter Text Here"
+                android:paddingLeft="10dp"
+                android:paddingTop="16dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="10dp"
+                android:focusedByDefault="true"/>
+
+            <Button
+                android:id="@+id/btn_send_msg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:background="@color/button_background"
+                android:fontFamily="sans-serif-medium"
+                android:foreground="@android:drawable/list_selector_background"
+                android:text="Send"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_user_name_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_setChatName_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/set_chat_name"
+            android:layout_centerHorizontal="true"
+            android:textSize="18sp"
+            android:layout_above="@+id/et_user_name"
+            android:textColor="@color/app_text" />
+
+    <EditText
+        android:id="@+id/et_user_name"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/bg_outline_input_box_text"
+        android:inputType="textCapWords"
+        android:lines="1"
+        android:hint="Enter User Name"
+        android:maxLength="20"/>
+
+    <Button
+        android:id="@+id/btn_start_chat"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:text="Start Chat"
+        android:background="@drawable/bg_violet_buton"
+        android:textColor="@color/button_text"
+        android:visibility="visible"
+        android:alpha="0.5"
+        android:enabled="false"/>
+
+    </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

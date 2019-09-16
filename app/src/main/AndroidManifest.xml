@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
 
     <application
         android:allowBackup="true"
@@ -18,8 +20,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChatActivity"></activity>
-        <activity android:name=".LauncherActivity">
+        <activity android:name=".activity.ChatActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            ></activity>
+
+        <service
+            android:name=".service.MessageService"
+            android:enabled="true" />
+
+        <activity android:name=".activity.LauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

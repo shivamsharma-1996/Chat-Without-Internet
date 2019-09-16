@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WifiDirectFinal</string>
+    <string name="set_chat_name">Please choose your User Name</string>
 </resources>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff"
-    tools:context=".LauncherActivity">
+    tools:context=".activity.LauncherActivity">
 
 
     <ImageView
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
         android:fontFamily="sans-serif-medium"
-        android:text="Connection to : "
+        android:text="Device connected : "
         android:textColor="@android:color/black"
         android:textSize="18dp"
         android:visibility="gone"
