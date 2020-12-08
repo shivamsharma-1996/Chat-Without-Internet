@@ -1,5 +1,5 @@
 # Chat-Without-Internet
-P2P Chat over Wifi direct without accessing internet. Wifi Direct allows applications to connect to nearby devices P2P without needing to connect to a network or hotspot
+P2P Chat over Wifi direct without accessing internet. Wifi Direct allows applications to connect to nearby devices P2P without needing to connect to a network or hotspot.
 </br> 
 
  
